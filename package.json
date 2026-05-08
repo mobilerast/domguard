@@ -17,14 +17,14 @@
     "watermark",
     "anti-tamper"
   ],
-  "author": "",
+  "author": "Mehmet Alp <mehmet.alp@rastmobile.com> (https://rastmobile.com)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/domguard"
+    "url": "https://github.com/mobilerast/domguard"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/domguard/issues"
+    "url": "https://github.com/mobilerast/domguard/issues"
   },
-  "homepage": "https://github.com/yourusername/domguard#readme"
+  "homepage": "https://github.com/mobilerast/domguard#readme"
 }
