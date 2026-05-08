@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMGuard - Basic Example</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .status.warning {
+            background: #dc3545;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .test-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        #log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="status" class="status">Protected ✓</div>
+    
+    <div class="container">
+        <h1>🛡️ DOMGuard - Basic Example</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Info:</strong> This page is protected by DOMGuard. Try opening DevTools and modifying any text content below. The library will automatically apply subtle visual markers.
+        </div>
+
+        <div class="alert">
+            <strong>⚠️ Try this:</strong>
+            <ol>
+                <li>Open your browser's Developer Tools (F12 or Right-click → Inspect)</li>
+                <li>Try to edit any text on this page using the Elements inspector</li>
+                <li>Watch the console for detection logs</li>
+                <li>Take a screenshot - the modified content will have subtle markers</li>
+            </ol>
+        </div>
+
+        <h2>Protected Content Examples</h2>
+        
+        <div class="test-content">
+            <h3>Financial Report - Q1 2026</h3>
+            <p>Revenue: <strong>$1,250,000</strong></p>
+            <p>Expenses: <strong>$850,000</strong></p>
+            <p>Net Profit: <strong>$400,000</strong></p>
+            <p><em>Try editing these numbers in DevTools...</em></p>
+        </div>
+
+        <div class="test-content">
+            <h3>Important Announcement</h3>
+            <p>This is an official company statement that must not be altered. Any modifications will be automatically detected and marked with visual indicators that prove tampering.</p>
+        </div>
+
+        <div class="test-content">
+            <h3>User Testimonial</h3>
+            <blockquote>
+                "This product is absolutely amazing! It changed my life completely. I would give it 5 stars out of 5!"
+            </blockquote>
+            <p>- John Doe, Verified Customer</p>
+        </div>
+
+        <h2>Test Actions</h2>
+        <button onclick="testModify()">Modify Content (Simulated)</button>
+        <button onclick="guard.forceMarkAll()">Force Mark All Elements</button>
+        <button onclick="checkTampering()">Check for Tampering</button>
+        <button onclick="clearLog()">Clear Log</button>
+
+        <h2>Detection Log</h2>
+        <div id="log"></div>
+    </div>
+
+    <script src="domguard.js"></script>
+    <script>
+        // Initialize DOMGuard with logging
+        let tamperedCount = 0;
+        
+        const guard = new DOMGuard({
+            debug: true,
+            onTamperDetected: (event) => {
+                tamperedCount++;
+                updateStatus('warning');
+                logMessage(`🚨 TAMPERING DETECTED: ${event.type} - ${event.message}`);
+                
+                if (event.element) {
+                    logMessage(`   Element: ${event.element.tagName} - "${event.element.textContent.substring(0, 50)}..."`);
+                }
+                
+                logMessage(`   Total tampered elements: ${tamperedCount}`);
+            }
+        });
+
+        function updateStatus(type) {
+            const status = document.getElementById('status');
+            if (type === 'warning') {
+                status.className = 'status warning';
+                status.textContent = '⚠️ Tampering Detected!';
+            } else {
+                status.className = 'status';
+                status.textContent = 'Protected ✓';
+            }
+        }
+
+        function logMessage(message) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+        }
+
+        function testModify() {
+            // Simulate content modification
+            const elements = document.querySelectorAll('.test-content p');
+            if (elements.length > 0) {
+                const randomEl = elements[Math.floor(Math.random() * elements.length)];
+                randomEl.textContent = 'This text was modified! ' + randomEl.textContent;
+                logMessage('✏️ Content modified programmatically');
+            }
+        }
+
+        function checkTampering() {
+            const tampered = guard.getTamperedElements();
+            logMessage(`📊 Tampering check: ${tampered.length} elements have been tampered with`);
+            
+            tampered.forEach((el, index) => {
+                logMessage(`   ${index + 1}. ${el.tagName} - "${el.textContent.substring(0, 40)}..."`);
+            });
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            logMessage('🗑️ Log cleared');
+        }
+
+        // Initial log message
+        logMessage('✅ DOMGuard initialized and monitoring');
+        logMessage('💡 Open DevTools and try modifying content to see detection in action');
+    </script>
+</body>
+</html>
